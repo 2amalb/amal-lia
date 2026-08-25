@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B4A3E">
+<title>Курс лечения · с 21.08.2026</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><text y=%27.9em%27 font-size=%2790%27>💊</text></svg>">
+<style>
+:root{
+  --paper:#FAF9F5; --card:#FFFFFF; --ink:#22312C; --muted:#68766F;
+  --rule:#E1E6DF; --rule-soft:#ECEFE9;
+  --clinic:#0E6F5C; --clinic-deep:#0B4A3E; --clinic-ink:#0A3D34;
+  --done:#159A73; --done-soft:#E4F4EC;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.45;
+  padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible,a:focus-visible{outline:2px solid var(--clinic);outline-offset:2px;border-radius:6px}
+a{color:var(--clinic);text-decoration:none;font-weight:600}
+.wrap{max-width:620px;margin:0 auto;padding:0 14px}
+
+/* ── Шапка: бланк ─────────────────────────── */
+.hero{background:linear-gradient(168deg,#0A3D34 0%,#0E5A4A 78%,#11695A 100%);color:#F3F4EE;
+  padding:22px 0 18px;border-bottom:3px solid #093229}
+.hero .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:#A9CFC2;display:flex;align-items:center;gap:8px}
+.hero .eyebrow::before{content:"✚";font-size:12px;color:#7FC2AE}
+.hero h1{font-size:26px;font-weight:750;letter-spacing:-.01em;margin-top:8px}
+.hero .sub{margin-top:5px;font-size:13px;color:#C7D8D0}
+.field-row{display:flex;gap:9px;margin-top:16px}
+.field{flex:1;border:1px solid rgba(255,255,255,.22);border-radius:10px;padding:9px 11px;
+  background:rgba(255,255,255,.06)}
+.field .l{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#9FC4B7}
+.field .v{font-family:var(--mono);font-size:19px;font-weight:600;margin-top:3px}
+.field .v small{font-size:12px;color:#B9D2C8;font-weight:500}
+
+/* ── Полоса дней ──────────────────────────── */
+.stripwrap{position:sticky;top:0;z-index:20;background:linear-gradient(var(--paper) 82%,rgba(250,249,245,0));
+  padding:10px 0 12px}
+.strip{display:flex;gap:7px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none}
+.strip::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;min-width:52px;padding:7px 4px 6px;border-radius:11px;background:var(--card);
+  border:1px solid var(--rule);text-align:center;transition:background .15s,border-color .15s}
+.chip .n{font-family:var(--mono);font-weight:700;font-size:15px;display:block}
+.chip .d{font-family:var(--mono);font-size:10px;color:var(--muted);display:block;margin-top:1px}
+.chip .bar{height:3px;border-radius:2px;background:var(--rule-soft);margin:5px 5px 0;overflow:hidden}
+.chip .bar i{display:block;height:100%;background:var(--done);width:0}
+.chip.today{border-color:var(--clinic);box-shadow:inset 0 0 0 1px var(--clinic)}
+.chip.sel{background:var(--clinic-deep);border-color:var(--clinic-deep);color:#F3F4EE}
+.chip.sel .d{color:#A9CFC2}
+.chip.sel .bar{background:rgba(255,255,255,.22)}
+.chip.sel .bar i{background:#5FD6AC}
+
+/* ── Панель дня ───────────────────────────── */
+.daycard{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:16px 15px 15px;
+  box-shadow:0 1px 2px rgba(34,49,44,.05)}
+.day-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.day-title{font-size:20px;font-weight:750}
+.day-title .num{font-family:var(--mono)}
+.badge{display:inline-block;vertical-align:2px;margin-left:7px;font-size:10.5px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--clinic);border:1px solid var(--clinic);
+  border-radius:99px;padding:2px 8px}
+.day-date{font-size:13.5px;color:var(--muted);margin-top:3px}
+.ghost{font-size:12.5px;font-weight:650;color:var(--clinic);border:1px solid var(--rule);
+  border-radius:99px;padding:6px 12px;white-space:nowrap;background:var(--paper)}
+.pwrap{margin-top:14px}
+.pbar{height:8px;background:var(--rule-soft);border-radius:99px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:var(--clinic);border-radius:99px;transition:width .3s,background .3s}
+.pbar.full i{background:var(--done)}
+.ptext{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-top:6px;
+  font-family:var(--mono)}
+.dayok{margin-top:12px;padding:9px 12px;border-radius:10px;background:var(--done-soft);color:#0D6B4E;
+  font-size:13.5px;font-weight:650;display:none}
+.daycard.complete .dayok{display:block}
+.afternote{margin-top:12px;font-size:13px;color:var(--muted);border-top:1px dashed var(--rule);padding-top:10px}
+
+/* ── Приёмы ───────────────────────────────── */
+.slot-h{display:flex;align-items:center;gap:9px;margin:20px 1px 9px;font-size:11.5px;font-weight:750;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+.slot-h::after{content:"";flex:1;height:1px;background:var(--rule)}
+.dose{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);
+  border:1px solid var(--rule);border-radius:12px;padding:11px 13px;min-height:58px;margin-bottom:8px;
+  transition:background .15s,border-color .15s}
+.dose:active{background:#F3F5F1}
+.dose .pill{width:11px;height:11px;border-radius:4px;background:var(--c);flex:0 0 auto;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.dose .info{flex:1;min-width:0}
+.dose .nm{font-size:15px;font-weight:650;letter-spacing:-.005em}
+.dose .nt{font-size:12.5px;color:var(--muted);margin-top:1px}
+.dose .ck{width:27px;height:27px;border-radius:50%;border:2px solid #C6CDC4;flex:0 0 auto;
+  display:grid;place-items:center;color:transparent;font-size:15px;font-weight:800;
+  transition:background .15s,border-color .15s}
+.dose.on{border-color:#BFE3D2;background:#FBFDFB}
+.dose.on .nm{color:#7C8983;text-decoration:line-through;text-decoration-color:#BFCDC4;text-decoration-thickness:1.5px}
+.dose.on .nt{color:#9AA79F}
+.dose.on .pill{opacity:.45}
+.dose.on .ck{background:var(--done);border-color:var(--done);color:#fff;animation:pop .18s ease-out}
+@keyframes pop{from{transform:scale(.72)}to{transform:scale(1)}}
+
+/* ── Заголовки секций ─────────────────────── */
+h2{font-size:12.5px;font-weight:750;letter-spacing:.14em;text-transform:uppercase;color:var(--clinic-ink);
+  margin:30px 1px 12px;display:flex;align-items:center;gap:10px}
+h2::after{content:"";flex:1;height:1px;background:var(--rule)}
+
+/* ── Календарь ✱ ──────────────────────────── */
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.cell{aspect-ratio:.94;border:1px solid var(--rule);border-radius:11px;background:var(--card);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px}
+.cell .dn{font-family:var(--mono);font-size:13px;font-weight:700}
+.cell .dd{font-family:var(--mono);font-size:9.5px;color:var(--muted)}
+.cell .star{font-size:15px;line-height:1;color:#D4DAD1;margin-top:1px}
+.cell.part{border-color:#BFE3D2;background:#F5FBF7}
+.cell.part .star{color:#6FC79F}
+.cell.done{border-color:var(--done);background:var(--done-soft)}
+.cell.done .star{color:var(--done)}
+.cell.today{box-shadow:inset 0 0 0 2px var(--clinic)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:11.5px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend .star{font-size:13px}
+
+/* ── Препараты ────────────────────────────── */
+.med{background:var(--card);border:1px solid var(--rule);border-left:5px solid var(--c);
+  border-radius:12px;padding:13px 14px;margin-bottom:9px}
+.med .top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.med .nm{font-size:15.5px;font-weight:700}
+.med .alt{font-size:12px;color:var(--muted);margin-top:1px}
+.med .days{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--clinic-ink);
+  background:var(--rule-soft);border-radius:7px;padding:3px 8px;white-space:nowrap}
+.med .desc{font-size:13.5px;margin-top:8px;color:#3C4A44}
+.med .mp{margin-top:10px}
+.med .mp .pbar{height:5px}
+.med .mp .t{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:4px}
+
+/* ── Правила / контроль ───────────────────── */
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;padding:15px 15px 8px}
+.rule-li{display:flex;gap:11px;padding:8px 0 10px;border-bottom:1px dashed var(--rule-soft);font-size:13.5px}
+.rule-li:last-child{border-bottom:none}
+.rule-li .ic{flex:0 0 auto;width:20px;text-align:center}
+.doc{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);
+  border:1px solid var(--rule);border-radius:14px;padding:14px 15px;margin-top:10px}
+.doc .who{font-size:14px;font-weight:650}
+.doc .role{font-size:12px;color:var(--muted)}
+.callbtn{background:var(--clinic);color:#fff;font-weight:700;font-size:13.5px;border-radius:99px;
+  padding:10px 16px;white-space:nowrap}
+.control{margin-top:10px;background:#FFF9EC;border:1px solid #F0E2BC;border-radius:14px;padding:14px 15px;
+  font-size:13.5px}
+.control b{display:block;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#8A6D1F;margin-bottom:5px}
+
+/* ── Подвал ───────────────────────────────── */
+footer{margin-top:30px;font-size:12px;color:var(--muted);text-align:center}
+footer .reset{display:inline-block;margin-top:10px;font-size:12px;color:#A45151;border:1px solid #E7D6D0;
+  border-radius:99px;padding:6px 13px}
+#storenote{display:block;margin-top:6px;font-family:var(--mono);font-size:10.5px}
+
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+@media (min-width:520px){.grid{grid-template-columns:repeat(6,1fr)}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Лист назначений · 21.08.2026</div>
+    <h1>Курс лечения</h1>
+    <div class="sub">«Хорев Медикал Центр», Ташкент · врач Мухамедов К.&nbsp;И.</div>
+    <div class="field-row">
+      <div class="field"><div class="l">День курса</div><div class="v"><span id="hDay">–</span> <small>из 30</small></div></div>
+      <div class="field"><div class="l">Принято сегодня</div><div class="v" id="hToday">–</div></div>
+      <div class="field"><div class="l">Курс выполнен</div><div class="v" id="hTotal">0%</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="stripwrap"><div class="strip" id="strip"></div></div>
+
+  <section class="daycard" id="daycard">
+    <div class="day-head">
+      <div>
+        <div class="day-title">День <span class="num" id="dNum">–</span><span class="badge" id="dBadge" hidden>сегодня</span></div>
+        <div class="day-date" id="dDate"></div>
+      </div>
+      <button class="ghost" id="goToday">Сегодня</button>
+    </div>
+    <div class="pwrap">
+      <div class="pbar" id="dBar"><i></i></div>
+      <div class="ptext"><span id="dCount"></span><span id="dPct"></span></div>
+    </div>
+    <div class="dayok">✱ Все приёмы за этот день отмечены</div>
+    <div id="slots"></div>
+    <div class="afternote" id="afterNote" hidden></div>
+  </section>
+
+  <h2>Календарь курса</h2>
+  <div class="grid" id="grid"></div>
+  <div class="legend">
+    <span><span class="star" style="color:#D4DAD1">✱</span> не отмечено</span>
+    <span><span class="star" style="color:#6FC79F">✱</span> частично</span>
+    <span><span class="star" style="color:var(--done)">✱</span> день выполнен</span>
+  </div>
+
+  <h2>Препараты</h2>
+  <div id="medcards"></div>
+
+  <h2>Правила приёма</h2>
+  <div class="card">
+    <div class="rule-li"><span class="ic">⏰</span><span>Принимать препараты в одно и то же время или через равные промежутки времени.</span></div>
+    <div class="rule-li"><span class="ic">🚫</span><span>На время курса полностью исключить алкоголь и острые блюда.</span></div>
+    <div class="rule-li"><span class="ic">🛡️</span><span>На период лечения, указанный врачом, использовать барьерную контрацепцию (презерватив).</span></div>
+    <div class="rule-li"><span class="ic">⚠️</span><span>При побочных реакциях (тошнота, рвота, понос, боли в животе, сыпь) — немедленно сообщить врачу.</span></div>
+  </div>
+
+  <div class="doc">
+    <div>
+      <div class="who">Мухамедов Кахрамон Иламанович</div>
+      <div class="role">лечащий врач</div>
+    </div>
+    <a class="callbtn" href="tel:+998901781010">90 178 10 10</a>
+  </div>
+
+  <div class="control">
+    <b>Контроль через 1 месяц · ≈ 21 сентября 2026</b>
+    ПЦР на уреаплазму и спермограмма. Sperplus Man и Омега-3 продолжать до 3 месяцев (≈ до 21 ноября 2026).
+  </div>
+
+  <footer>
+    Составлено по листу назначений от 21.08.2026. Сверяйтесь с бумажным оригиналом и указаниями врача.
+    <span id="storenote"></span>
+    <button class="reset" id="reset">Сбросить все отметки</button>
+    <div style="margin-top:12px"><a href="/lia/">Трекер Лии →</a></div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ── Данные назначения ───────────────────── */
+const START = new Date(2026, 7, 21);           // 21 августа 2026
+const DAYS  = 30;
+const SLOTS = [
+  {id:"mb", t:"Утро · до еды"},
+  {id:"ma", t:"Утро · после еды"},
+  {id:"eb", t:"Вечер · до еды"},
+  {id:"ea", t:"Вечер · после еды"}
+];
+const MEDS = [
+  {id:"orn", nm:"Орнидазол 500 мг", alt:"Тиберал / Герал / Оргил", c:"#D95B5B",
+   days:"дни 1–5", desc:"По 1 таблетке утром и вечером, после еды. Курс — 5 дней.",
+   act:d=>d>=1&&d<=5, ds:[{s:"ma",t:"1 таблетка · после еды"},{s:"ea",t:"1 таблетка · после еды"}]},
+  {id:"dox", nm:"Юнидокс Солютаб 0,1 г", alt:"или Доксилан", c:"#DF8E2E",
+   days:"дни 1–14", desc:"По 1 таблетке 2 раза в день, после еды. Курс — 14 дней.",
+   act:d=>d>=1&&d<=14, ds:[{s:"ma",t:"1 таблетка · после еды"},{s:"ea",t:"1 таблетка · после еды"}]},
+  {id:"flu", nm:"Флуконазол 150 мг", alt:"Дифлюкан / Флунол", c:"#8A6DDF",
+   days:"день 7 и 14", desc:"По 1 капсуле 1 раз в день, после еды — только на 7-й и 14-й день лечения.",
+   act:d=>d===7||d===14, ds:[{s:"ma",t:"1 капсула · после еды"}]},
+  {id:"ser", nm:"Серидаза 120 000 SPU", alt:"серрапептидаза 30 мг", c:"#3D96DB",
+   days:"дни 1–14", desc:"По 1 капсуле 1 раз в день, за 1 час до еды. Курс — 14 дней.",
+   act:d=>d>=1&&d<=14, ds:[{s:"mb",t:"1 капсула · за 1 час до еды"}]},
+  {id:"pro", nm:"Протефлазид, капли", alt:"флакон 50 мл", c:"#2E9E77",
+   days:"дни 1–30", desc:"По 10–15 капель 2 раза в день, до еды. Курс — 1 месяц.",
+   act:d=>d>=1&&d<=30, ds:[{s:"mb",t:"10–15 капель · до еды"},{s:"eb",t:"10–15 капель · до еды"}]},
+  {id:"spe", nm:"Sperplus Man, саше", alt:"", c:"#4C6FD8",
+   days:"1–30 · далее до 3 мес", desc:"1 саше растворить в 200 мл тёплой воды, принимать утром до еды. Курс — 3 месяца.",
+   act:d=>d>=1, ds:[{s:"mb",t:"1 саше · в 200 мл тёплой воды"}]},
+  {id:"omg", nm:"Омега-3 2000 мг", alt:"", c:"#C29B27",
+   days:"1–30 · далее до 3 мес", desc:"По 1 капсуле утром, после еды. Курс — 3 месяца.",
+   act:d=>d>=1, ds:[{s:"ma",t:"1 капсула · после еды"}]}
+];
+
+/* ── Даты ────────────────────────────────── */
+const MON=["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+const WD=["вс","пн","вт","ср","чт","пт","сб"];
+const dateFor=d=>{const x=new Date(START);x.setDate(x.getDate()+d-1);return x};
+const fmtLong=x=>WD[x.getDay()]+", "+x.getDate()+" "+MON[x.getMonth()];
+const fmtShort=x=>String(x.getDate()).padStart(2,"0")+"."+String(x.getMonth()+1).padStart(2,"0");
+const todayNum=()=>{const n=new Date(),a=new Date(n.getFullYear(),n.getMonth(),n.getDate()),
+  b=new Date(START.getFullYear(),START.getMonth(),START.getDate());
+  return Math.round((a-b)/864e5)+1};
+
+/* ── Дозы ────────────────────────────────── */
+function dosesFor(d){const out=[];for(const m of MEDS){if(!m.act(d))continue;
+  for(const x of m.ds)out.push({m,s:x.s,t:x.t,key:d+":"+m.id+":"+x.s})}return out}
+function dayStats(d){const l=dosesFor(d);let t=0;for(const x of l)if(state.taken[x.key])t++;
+  return{total:l.length,taken:t}}
+const medKeys=m=>{const out=[];for(let d=1;d<=DAYS;d++){if(!m.act(d))continue;
+  for(const x of m.ds)out.push(d+":"+m.id+":"+x.s)}return out};
+let TOTAL_ALL=0;for(let d=1;d<=DAYS;d++)TOTAL_ALL+=dosesFor(d).length;
+
+/* ── Хранилище ───────────────────────────── */
+const KEY="med-course-2026-08-21";
+let state={taken:{}};
+/* window.storage — превью в Claude; localStorage — обычный сайт (amal-lia.com) */
+function lsOK(){try{localStorage.setItem("__t","1");localStorage.removeItem("__t");return true}catch(e){return false}}
+const hasStore=(typeof window.storage!=="undefined"&&!!window.storage)||lsOK();
+async function readRaw(){
+  if(typeof window.storage!=="undefined"&&window.storage){
+    try{const r=await window.storage.get(KEY);if(r&&r.value)return r.value}catch(e){}
+    return null}
+  try{return localStorage.getItem(KEY)}catch(e){return null}}
+async function writeRaw(v){
+  if(typeof window.storage!=="undefined"&&window.storage){
+    try{await window.storage.set(KEY,v)}catch(e){console.error(e)}
+    return}
+  try{localStorage.setItem(KEY,v)}catch(e){console.error(e)}}
+async function load(){const v=await readRaw();
+  if(v){try{const p=JSON.parse(v);if(p&&typeof p.taken==="object")state=p}catch(e){}}}
+let tmr=null;
+function save(){clearTimeout(tmr);tmr=setTimeout(()=>writeRaw(JSON.stringify(state)),250)}
+
+/* ── Отрисовка ───────────────────────────── */
+let sel=1,firstStrip=true;
+const $=id=>document.getElementById(id);
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+function renderHero(){const tn=todayNum();
+  $("hDay").textContent=tn<1?"—":(tn>DAYS?"30+":tn);
+  if(tn>=1&&tn<=DAYS){const s=dayStats(tn);$("hToday").textContent=s.taken+" / "+s.total}
+  else $("hToday").textContent="—";
+  let all=0;for(let d=1;d<=DAYS;d++)all+=dayStats(d).taken;
+  $("hTotal").textContent=Math.round(all/TOTAL_ALL*100)+"%"}
+
+function renderStrip(){const tn=todayNum();let h="";
+  for(let d=1;d<=DAYS;d++){const s=dayStats(d),p=s.total?Math.round(s.taken/s.total*100):0;
+    h+='<button class="chip'+(d===sel?" sel":"")+(d===tn?" today":"")+'" data-day="'+d+
+       '" aria-label="День '+d+'"><span class="n">'+d+'</span><span class="d">'+
+       fmtShort(dateFor(d))+'</span><span class="bar"><i style="width:'+p+'%"></i></span></button>'}
+  $("strip").innerHTML=h;
+  const c=document.querySelector(".chip.sel");
+  if(c&&firstStrip){c.scrollIntoView({inline:"center",block:"nearest"});firstStrip=false}}
+
+function renderDay(){const tn=todayNum(),dt=dateFor(sel),s=dayStats(sel);
+  $("dNum").textContent=sel;$("dDate").textContent=fmtLong(dt)+" · "+dt.getFullYear();
+  $("dBadge").hidden=sel!==tn;
+  const p=s.total?Math.round(s.taken/s.total*100):0;
+  $("dBar").querySelector("i").style.width=p+"%";
+  $("dBar").classList.toggle("full",p===100);
+  $("dCount").textContent="принято "+s.taken+" из "+s.total;
+  $("dPct").textContent=p+"%";
+  $("daycard").classList.toggle("complete",p===100&&s.total>0);
+  const note=$("afterNote");
+  if(sel===DAYS){note.hidden=false;
+    note.textContent="После 30-го дня: Sperplus Man и Омега-3 продолжать до 3 месяцев, остальные препараты завершены."}
+  else note.hidden=true;
+  let h="";
+  for(const sl of SLOTS){const items=dosesFor(sel).filter(x=>x.s===sl.id);if(!items.length)continue;
+    h+='<div class="slot-h">'+sl.t+"</div>";
+    for(const x of items){const on=!!state.taken[x.key];
+      h+='<button class="dose'+(on?" on":"")+'" data-key="'+x.key+'" aria-pressed="'+on+
+         '" style="--c:'+x.m.c+'"><span class="pill"></span><span class="info"><span class="nm">'+
+         esc(x.m.nm)+'</span><br><span class="nt">'+esc(x.t)+'</span></span><span class="ck">✓</span></button>'}}
+  $("slots").innerHTML=h}
+
+function renderGrid(){const tn=todayNum();let h="";
+  for(let d=1;d<=DAYS;d++){const s=dayStats(d);
+    const cls=s.taken===0?"":(s.taken===s.total?"done":"part");
+    h+='<button class="cell '+cls+(d===tn?" today":"")+'" data-day="'+d+'" data-top="1" aria-label="День '+d+
+       '"><span class="dn">'+d+'</span><span class="dd">'+fmtShort(dateFor(d))+
+       '</span><span class="star">✱</span></button>'}
+  $("grid").innerHTML=h}
+
+function renderMeds(){let h="";
+  for(const m of MEDS){const keys=medKeys(m);let t=0;for(const k of keys)if(state.taken[k])t++;
+    const p=keys.length?Math.round(t/keys.length*100):0;
+    h+='<div class="med" style="--c:'+m.c+'"><div class="top"><div><div class="nm">'+esc(m.nm)+"</div>"+
+       (m.alt?'<div class="alt">'+esc(m.alt)+"</div>":"")+'</div><span class="days">'+esc(m.days)+
+       '</span></div><div class="desc">'+esc(m.desc)+'</div><div class="mp"><div class="pbar'+
+       (p===100?" full":"")+'"><i style="width:'+p+'%"></i></div><div class="t">'+t+" из "+keys.length+
+       " приёмов за 30 дней</div></div></div>"}
+  $("medcards").innerHTML=h}
+
+function renderAll(){renderHero();renderStrip();renderDay();renderGrid();renderMeds()}
+
+/* ── События ─────────────────────────────── */
+document.addEventListener("click",e=>{
+  const dose=e.target.closest(".dose");
+  if(dose){const k=dose.dataset.key;
+    if(state.taken[k])delete state.taken[k];else state.taken[k]=1;
+    save();renderAll();return}
+  const day=e.target.closest("[data-day]");
+  if(day){sel=+day.dataset.day;renderAll();
+    if(day.dataset.top)window.scrollTo({top:0,behavior:"smooth"});
+    return}
+});
+$("goToday").addEventListener("click",()=>{const tn=todayNum();
+  sel=Math.min(Math.max(tn,1),DAYS);firstStrip=true;renderAll()});
+$("reset").addEventListener("click",()=>{
+  if(confirm("Удалить все отметки о приёме? Это действие нельзя отменить."))
+    {state={taken:{}};save();renderAll()}});
+
+/* ── Старт ───────────────────────────────── */
+$("storenote").textContent=hasStore
+  ?"Отметки сохраняются в этом браузере."
+  :"Хранилище недоступно — отметки не сохранятся после закрытия.";
+load().then(()=>{const tn=todayNum();sel=Math.min(Math.max(tn,1),DAYS);renderAll()});
+})();
+</script>
+</body>
+</html>
